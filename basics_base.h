@@ -109,6 +109,7 @@
 #if defined(__clang__) || defined(__GNUC__)
 #define FallThrough() __attribute__((fallthrough))
 #define DebugTrap()   __builtin_debugtrap()
+#define DontReach()   __bulitin_unreachable()
 
 typedef __builtin_va_list VArgs;
 #define BeginVArgs(...) __builtin_va_start(__VA_ARGS__)
@@ -118,6 +119,7 @@ typedef __builtin_va_list VArgs;
 #elif defined(_MSC_VER)
 #define FallThrough() ((void)0)
 #define DebugTrap()   __debugbreak()
+#define DontReach()   __assume(0)
 
 #include <stdarg.h>
 typedef va_list VArgs;

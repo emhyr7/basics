@@ -461,12 +461,12 @@ PRIVATE inline Size GaugeFlagsArraySize(Size quantity) {
 	return quantity / WIDTHOF(Bits64) * sizeof(Bits64);
 }
 
-PRIVATE inline Bits64 *GetFlagsBeginning(GranularAllocator context) {
-	return (Bits64 *)(context.address + context.reservation - sizeof(Bits64));
+PRIVATE inline Bits64 *GetBeginningFlags(GranularAllocator *context) {
+	return (Bits64 *)(context->address + context->reservation - sizeof(Bits64));
 }
 
-PRIVATE inline Bits64 *GetFlagsEnding(GranularAllocator context) {
-	return (Bits64 *)((Address)GetFlagsBeginning(context) - GaugeFlagsArraySize(context.quantity));
+PRIVATE inline Bits64 *GetEndingFlags(GranularAllocator *context) {
+	return (Bits64 *)((Address)GetBeginningFlags(context) - GaugeFlagsArraySize(context->quantity));
 }
 
 /* granular allocator / creation **********************************************/
@@ -480,7 +480,7 @@ void InitializeGranularAllocator(GranularAllocator *context) {
 	/* NOTE(Emhyr): we don't care if the granularity is an odd number here. should we? */
 	/* NOTE(Emhyr): should we align the quantity to correspond with the amount of bytes committed for the flags? */
 
-	Address ending = (Address)GetFlagsEnding(*context);
+	Address ending = (Address)GetEndingFlags(context);
 	CommitVirtualMemory(AlignBackwards(ending + sizeof(Bits64), QueryVirtualMemoryGranularity()), GaugeFlagsArraySize(context->quantity));
 	
 	/* NOTE(Emhyr): we assume that the reservation is enough for the blocks here. this is unsafe */
@@ -510,9 +510,9 @@ void *Put(Size size, GranularAllocator *context) {
 #endif
 	
 	Size count = (size + context->granularity - 1) / context->granularity;
-	Bits64 *beginning = GetFlagsBeginning(*context);
-	BitLocation location = FindBits(count, beginning, GetFlagsEnding(*context), 1);
-	if (!location.pointer) return 0; /* TODO(Emhyr): expand */
+	Bits64 *beginning = GetBeginningFlags(context);
+	BitLocation location = FindBits(count, beginning, GetEndingFlags(context), 1);
+	if (!location.pointer) return 0;
 	SetBits(count, location, 0, 1);
 	Size index = (beginning - location.pointer) * WIDTHOF(Bits64) + location.index;
 	void *result = (void *)(context->address + index * context->granularity);
@@ -534,7 +534,7 @@ void Pop(void *address, Size size, GranularAllocator *context) {
 	Size index = ((Address)address - context->address) / context->granularity;
 	
 	BitLocation location = {
-		.pointer = GetFlagsBeginning(*context) + index / WIDTHOF(Bits64),
+		.pointer = GetBeginningFlags(context) + index / WIDTHOF(Bits64),
 		.index = index % WIDTHOF(Bits64)
 	};
 	SetBits(count, location, 0, 1);
