@@ -1,3 +1,9 @@
-A LIBRARY OF MEMORY ALLOCATORS AWARE ABOUT VIRTUAL MEMORY
+BASIC STUFF
 
-currently only works on Win32.
+STRUCTURE ----------------------------------------------------------------------
+
+`basics.h`        - an aggregation of all headers.
+`basics_base.h`   - platform identification, standardizing macros and types, and
+                    utility procedures.
+`basics_bits.h`   - bit manipulation.
+`basics_memory.h` - ZII-based virtual memory allocators with debug variants.
