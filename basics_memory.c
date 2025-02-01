@@ -530,7 +530,7 @@ void *PutZeroed(Size size, GranularAllocator *context) {
 void Pop(void *address, Size size, GranularAllocator *context) {
 	/* NOTE(Emhyr): #unsafe: we don't check if `address` is valid */
 	
-	Size count = size / context->granularity;
+	Size count = (size + context->granularity - 1) / context->granularity;
 	Size index = ((Address)address - context->address) / context->granularity;
 	
 	BitLocation location = {

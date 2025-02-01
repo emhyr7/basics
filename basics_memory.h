@@ -93,25 +93,25 @@ to reduce the amount of expensive commits */
 
 /******************************************************************************/
 
-INLINED Boolean CheckAlignment(Size alignment) {
+PRIVATE INLINED Boolean CheckAlignment(Size alignment) {
 	return alignment && !(alignment & (alignment - 1));
 }
 
-INLINED Size GaugeBackwardAligner(Size address, Size alignment) {
+PRIVATE INLINED Size GaugeBackwardAligner(Size address, Size alignment) {
 	Assert(CheckAlignment(alignment), "attempting to use a misalignment is disallowed"); \
 	return alignment ? address & (alignment - 1) : 0;
 }
 
-INLINED Size GaugeForwardAligner(Size address, Size alignment) {
+PRIVATE INLINED Size GaugeForwardAligner(Size address, Size alignment) {
 	Size remainder = GaugeBackwardAligner(address, alignment);
 	return remainder ? alignment - remainder : 0;
 }
 
-INLINED Size AlignBackwards(Size address, Size alignment) {
+PRIVATE INLINED Size AlignBackwards(Size address, Size alignment) {
 	return address - GaugeBackwardAligner(address, alignment);
 }
 
-INLINED Size AlignForwards(Size address, Size alignment) {
+PRIVATE INLINED Size AlignForwards(Size address, Size alignment) {
 	return address + GaugeForwardAligner(address, alignment);
 }
 
